@@ -19,5 +19,5 @@ tracks:
     release_tag: :{version}
     ros_distro: indigo
     vcs_type: git
-    vcs_uri: https://AndyZe@bitbucket.org/AndyZe/pid.git
+    vcs_uri: https://bitbucket.org/AndyZe/pid
     version: :{auto}
