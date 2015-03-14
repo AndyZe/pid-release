@@ -1,0 +1,20 @@
+ros-indigo-pid (0.0.2-0saucy) saucy; urgency=high
+
+
+
+ -- Andy Zelenak <andyz@utexas.edu>  Fri, 13 Mar 2015 06:00:00 -0000
+
+ros-indigo-pid (0.0.1-0saucy) saucy; urgency=high
+
+  * Fixing various minor bugs related to user input.
+  * Pre-release commit.
+  * It WORKS!
+  * It's talking with the plant sim now. Just the PID programming remains.
+  * Making progress with the command line input.
+  * Rough outline of the program. Need to take inputs on the command line next.
+  * Initial commit
+  * Contributors: Andy Zelenak
+
+ -- Andy Zelenak <andyz@utexas.edu>  Sun, 08 Mar 2015 07:00:00 -0000
+
+
