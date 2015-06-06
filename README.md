@@ -1,3 +1,24 @@
+## pid (jade) - 0.0.3-0
+
+The packages in the `pid` repository were released into the `jade` distro by running `/usr/bin/bloom-release pid --track jade --rosdistro jade --new-track` on `Sat, 06 Jun 2015 15:21:06 -0000`
+
+The `pid` package was released.
+
+Version of package(s) in repository `pid`:
+- upstream repository: https://bitbucket.org/AndyZe/pid
+- release repository: unknown
+- rosdistro version: `null`
+- old version: `null`
+- new version: `0.0.3-0`
+
+Versions of tools used:
+- bloom version: `0.5.20`
+- catkin_pkg version: `0.2.8`
+- rosdep version: `0.11.2`
+- rosdistro version: `0.4.2`
+- vcstools version: `0.1.36`
+
+
 ## pid (indigo) - 0.0.3-0
 
 The packages in the `pid` repository were released into the `indigo` distro by running `/usr/bin/bloom-release --rosdistro indigo --track indigo pid` on `Sun, 15 Mar 2015 05:48:07 -0000`
