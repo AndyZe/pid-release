@@ -2,6 +2,11 @@
 Changelog for package pid
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.0.7 (2015-07-26)
+------------------
+* Added a launch file, which required the arguments to be processed differently.
+* Contributors: Andy Zelenak
+
 0.0.6 (2015-06-09)
 ------------------
 * Changing the way parameters are passed to check_user_input().
