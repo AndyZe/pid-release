@@ -1,0 +1,47 @@
+ros-indigo-pid (0.0.7-0trusty) trusty; urgency=high
+
+  * Added a launch file, which required the arguments to be processed differently.
+  * Contributors: Andy Zelenak
+
+ -- Andy Zelenak <andyz@utexas.edu>  Sun, 26 Jul 2015 06:00:00 -0000
+
+ros-indigo-pid (0.0.6-0trusty) trusty; urgency=high
+
+  * Changing the way parameters are passed to check_user_input().
+  * Contributors: Andy Zelenak
+
+ -- Andy Zelenak <andyz@utexas.edu>  Tue, 09 Jun 2015 06:00:00 -0000
+
+ros-indigo-pid (0.0.5-0trusty) trusty; urgency=high
+
+  * Adding an anti-windup option.
+  * Contributors: Andy Zelenak
+
+ -- Andy Zelenak <andyz@utexas.edu>  Tue, 09 Jun 2015 06:00:00 -0000
+
+ros-indigo-pid (0.0.3-0trusty) trusty; urgency=high
+
+
+
+ -- Andy Zelenak <andyz@utexas.edu>  Sat, 14 Mar 2015 06:00:00 -0000
+
+ros-indigo-pid (0.0.2-0trusty) trusty; urgency=high
+
+
+
+ -- Andy Zelenak <andyz@utexas.edu>  Fri, 13 Mar 2015 06:00:00 -0000
+
+ros-indigo-pid (0.0.1-0trusty) trusty; urgency=high
+
+  * Fixing various minor bugs related to user input.
+  * Pre-release commit.
+  * It WORKS!
+  * It's talking with the plant sim now. Just the PID programming remains.
+  * Making progress with the command line input.
+  * Rough outline of the program. Need to take inputs on the command line next.
+  * Initial commit
+  * Contributors: Andy Zelenak
+
+ -- Andy Zelenak <andyz@utexas.edu>  Sun, 08 Mar 2015 07:00:00 -0000
+
+
