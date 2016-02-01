@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   dynamic_reconfigure
+  diagnostic_updater
 )
 
 generate_dynamic_reconfigure_options(
@@ -23,57 +24,6 @@ generate_dynamic_reconfigure_options(
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 # catkin_python_setup()
 
-################################################
-## Declare ROS messages, services and actions ##
-################################################
-
-## To declare and build messages, services or actions from within this
-## package, follow these steps:
-## * Let MSG_DEP_SET be the set of packages whose message types you use in
-##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
-## * In the file package.xml:
-##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
-##   * If MSG_DEP_SET isn't empty the following dependencies might have been
-##     pulled in transitively but can be declared for certainty nonetheless:
-##     * add a build_depend tag for "message_generation"
-##     * add a run_depend tag for "message_runtime"
-## * In this file (CMakeLists.txt):
-##   * add "message_generation" and every package in MSG_DEP_SET to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * add "message_runtime" and every package in MSG_DEP_SET to
-##     catkin_package(CATKIN_DEPENDS ...)
-##   * uncomment the add_*_files sections below as needed
-##     and list every .msg/.srv/.action file to be processed
-##   * uncomment the generate_messages entry below
-##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
-
-## Generate messages in the 'msg' folder
-add_message_files(
-   FILES
-   plant_msg.msg
-   controller_msg.msg
- )
-
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
-
-## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
-
-## Generate added messages and services with any dependencies listed here
-generate_messages(
-   DEPENDENCIES
-   std_msgs
-)
-
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -84,9 +34,9 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES pid
-   CATKIN_DEPENDS roscpp std_msgs message_runtime dynamic_reconfigure
+   CATKIN_DEPENDS roscpp std_msgs message_runtime dynamic_reconfigure diagnostic_updater
 #  DEPENDS system_lib
 )
 
@@ -111,21 +61,22 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 ## Declare a cpp executable
 
 add_executable(controller src/controller.cpp)
+add_executable(plant_sim src/plant_sim.cpp)
+add_executable(setpoint_node src/setpoint_node.cpp)
+add_executable(sim_time src/sim_time.cpp)
 
-add_executable(first_order_plant src/first_order_plant_sim.cpp)
+add_dependencies(controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} dynamic_reconfigure diagnostic_updater)
+add_dependencies(plant_sim ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} dynamic_reconfigure diagnostic_updater)
+add_dependencies(setpoint_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} dynamic_reconfigure diagnostic_updater)
+add_dependencies(sim_time ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} dynamic_reconfigure diagnostic_updater)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(pid_node pid_generate_messages_cpp)
-add_dependencies(controller pid_generate_messages_cpp)
-add_dependencies(first_order_plant pid_generate_messages_cpp)
 
-## Specify libraries to link a library or executable target against
-# target_link_libraries(pid_node
-#   ${catkin_LIBRARIES}
-# )
 target_link_libraries(controller ${catkin_LIBRARIES})
-target_link_libraries(first_order_plant ${catkin_LIBRARIES})
+target_link_libraries(plant_sim ${catkin_LIBRARIES})
+target_link_libraries(setpoint_node ${catkin_LIBRARIES})
+target_link_libraries(sim_time ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -142,7 +93,7 @@ target_link_libraries(first_order_plant ${catkin_LIBRARIES})
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS controller first_order_plant
+install(TARGETS controller plant_sim
 #  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
