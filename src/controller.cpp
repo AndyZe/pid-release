@@ -106,7 +106,7 @@ void plant_state_callback(const std_msgs::Float64& state_msg)
  
   filtered_error.at(2) = filtered_error.at(1);
   filtered_error.at(1) = filtered_error.at(0); 
-  filtered_error.at(0) = (1/(1+c*c+1.414*c))*(error.at(2)+2*error.at(1)+error.at(0)-(2-1.414)*filtered_error.at(2));
+  filtered_error.at(0) = (1/(1+c*c+1.414*c))*(error.at(2)+2*error.at(1)+error.at(0)-(c*c-1.414*c+1)*filtered_error.at(2)-(-2*c*c+2)*filtered_error.at(1));
 
   // Take derivative of error
   // First the raw, unfiltered data:
@@ -118,7 +118,7 @@ void plant_state_callback(const std_msgs::Float64& state_msg)
   filtered_error_deriv.at(1) = filtered_error_deriv.at(0);
 
   if ( loop_counter>2 ) // Let some data accumulate
-    filtered_error_deriv.at(0) = (1/(1+c*c+1.414*c))*(error_deriv.at(2)+2*error_deriv.at(1)+error_deriv.at(0)-(2-1.414)*filtered_error_deriv.at(2));
+    filtered_error_deriv.at(0) = (1/(1+c*c+1.414*c))*(error_deriv.at(2)+2*error_deriv.at(1)+error_deriv.at(0)-(c*c-1.414*c+1)*filtered_error_deriv.at(2)-(-2*c*c+2)*filtered_error_deriv.at(1));
   else
     loop_counter++;
 
@@ -130,25 +130,40 @@ void plant_state_callback(const std_msgs::Float64& state_msg)
 
   // Apply saturation limits
   if (control_effort > upper_limit)
+  {
     control_effort = upper_limit;
-  if (control_effort < lower_limit)
+    diag_status.level = diagnostic_msgs::DiagnosticStatus::WARN;
+    diag_status.message = "Control effort exceeded upper limit";
+  }
+  else if (control_effort < lower_limit)
+  {
     control_effort = lower_limit;
-
-  ++measurements_received;
-  diags->freq_status.tick();
-  diags->diag_updater.update();
+    diag_status.level = diagnostic_msgs::DiagnosticStatus::WARN;
+    diag_status.message = "Control effort exceeded lower limit";
+  }
+  else
+  {
+    diag_status.level = diagnostic_msgs::DiagnosticStatus::OK;
+    diag_status.message = "PID controller nominal";
+  }
 
   // Publish the stabilizing control effort if the controller is enabled
   if (pid_enabled)
   {
     control_msg.data = control_effort;
-
     control_effort_pub.publish(control_msg);
   }
   else
   {
     error_integral = 0.0;
+    diag_status.level = diagnostic_msgs::DiagnosticStatus::ERROR;
+    diag_status.message = "PID controller disabled";
   }
+
+  // update diags
+  ++measurements_received;
+  diags->freq_status.tick();
+  diags->diag_updater.update();
 
   return;
 }
@@ -176,38 +191,15 @@ void reconfigure_callback(pid::PidConfig &config, uint32_t level)
 
 void get_pid_diag_status(diagnostic_updater::DiagnosticStatusWrapper& pid_diag_status)
 {
-  pid_diag_status.summary(diagnostic_msgs::DiagnosticStatus::OK, "PID controller nominal");
+  pid_diag_status.summary(diag_status);
   pid_diag_status.add("Setpoint", setpoint);
-  pid_diag_status.add("Pid Controller input", plant_state);
-  pid_diag_status.add("Error", error.at(0));
+  pid_diag_status.add("Plant State", plant_state);
+  pid_diag_status.add("Control Error", error.at(0));
   pid_diag_status.add("Control output effort", control_effort);
   pid_diag_status.add("Proportional effort", proportional);
   pid_diag_status.add("Integral effort", integral);
   pid_diag_status.add("Derivative effort", derivative);
   pid_diag_status.add("Measurements received", measurements_received);
-}
-
-void usage()
-{
-  std::cout << std::endl;
-  std::cout << "Usage: controller [ Kp Ki Kd rate [<command-line options>]" << std::endl;
-  std::cout << "Example: rosrun pid controller 1.1 2.2 3.3 100 -fc 100 -nn pid_node_name" << std::endl;
-  std::cout << std::endl;
-  std::cout << "All arguments are optional and override parameters. Defaults are provided." << std::endl;
-  std::cout << "Optional arguments:" << std::endl << std::endl;
-  std::cout << "Kp (default: 1), Ki (default: 0), Kd (default: 0), rate (default: 50)\n";
-  std::cout << "-fc Filter Cutoff frequency [Hz]" << std::endl;
-  std::cout << "-tfc name of Topic From Controller" << std::endl;
-  std::cout << "-ttc name of Topic From Plant" << std::endl;
-  std::cout << "-nn Name of pid Node" << std::endl;
-  std::cout << "-ul Upper Limit of control effort, e.g. maximum motor torque" << std::endl;
-  std::cout << "-ll Lower Limit of control effort, e.g. minimum motor torque" << std::endl;
-  std::cout << "-aw Anti-Windup, i.e. the largest value the integral term can have." << std::endl
-            << std::endl;
-  std::cout << "Alternatively, provide parameters ~Kp, ~Ki, ~Kd, ~cutoff_frequency," << std::endl 
-       << "~upper_limit, ~lower_limit, ~windup_limit," << std::endl
-       << "~topic_from_controller, ~topic_from_plant, ~node_name"
-       << std::endl;
 }
 
   ////////////////////////////////////
@@ -216,12 +208,6 @@ void usage()
 
 bool validate_parameters()
 {
-  if ( rate <= 0 )
-  {
-    ROS_ERROR("Enter a positive value for the loop rate.");
-    return(false);
-  }
-
   if ( lower_limit > upper_limit )
   {
     ROS_ERROR("The lower saturation limit cannot be greater than the upper saturation limit.");
@@ -237,8 +223,7 @@ bool validate_parameters()
 void print_parameters()
 {
   std::cout<< std::endl<<"PID PARAMETERS"<<std::endl<<"-----------------------------------------"<<std::endl;
-  std::cout << "Kp: " << Kp << ",  Ki: " << Ki << ",  Kd: " << Kd << ",  Loop rate [Hz]: "
-            << rate << std::endl;
+  std::cout << "Kp: " << Kp << ",  Ki: " << Ki << ",  Kd: " << Kd << std::endl;
   if ( cutoff_frequency== -1) // If the cutoff frequency was not specified by the user
     std::cout<<"LPF cutoff frequency: 1/4 of sampling rate"<<std::endl;
   else
@@ -277,7 +262,6 @@ int main(int argc, char **argv)
   node_priv.param<double>("Kp", Kp, 1.0);
   node_priv.param<double>("Ki", Ki, 0.0);
   node_priv.param<double>("Kd", Kd, 0.0);
-  node_priv.param<double>("rate", rate, 50.0);
   node_priv.param<double>("upper_limit", upper_limit, 1000.0);
   node_priv.param<double>("lower_limit", lower_limit, -1000.0);
   node_priv.param<double>("windup_limit", windup_limit, 1000.0);
@@ -285,13 +269,14 @@ int main(int argc, char **argv)
   node_priv.param<std::string>("topic_from_controller", topic_from_controller, "control_effort");
   node_priv.param<std::string>("topic_from_plant", topic_from_plant, "state");
   node_priv.param<std::string>("setpoint_topic", setpoint_topic, "setpoint");
+  node_priv.param<double>("max_loop_frequency", max_loop_frequency, 1.0);
+  node_priv.param<double>("min_loop_frequency", min_loop_frequency, 1000.0);
 
   // Update params if specified as command-line options, & print settings
   print_parameters();
   if (not validate_parameters())
   {
-    std::cout << "Error: invalid parameter or command-line error\n";
-    usage();
+    std::cout << "Error: invalid parameter\n";
   }
 
   // instantiate publishers & subscribers
@@ -307,8 +292,11 @@ int main(int argc, char **argv)
   f = boost::bind(&reconfigure_callback, _1, _2);
   config_server.setCallback(f);
 
-  // initialize diagnostics updaters
+  // initialize diagnostics
   diags = new PidControllerDiags;
+
+  diag_status.level = diagnostic_msgs::DiagnosticStatus::OK;
+  diag_status.message = "PID status nominal";
 
   diags->diag_updater.setHardwareID(node_name);
   diags->diag_updater.add(diags->freq_status);
