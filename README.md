@@ -1,3 +1,24 @@
+## pid (indigo) - 0.0.15-0
+
+The packages in the `pid` repository were released into the `indigo` distro by running `/usr/bin/bloom-release pid --track indigo --rosdistro indigo` on `Mon, 22 Feb 2016 18:38:21 -0000`
+
+The `pid` package was released.
+
+Version of package(s) in repository `pid`:
+- upstream repository: https://bitbucket.org/AndyZe/pid
+- release repository: https://github.com/AndyZelenak/pid-release.git
+- rosdistro version: `0.0.14-1`
+- old version: `0.0.14-1`
+- new version: `0.0.15-0`
+
+Versions of tools used:
+- bloom version: `0.5.20`
+- catkin_pkg version: `0.2.10`
+- rosdep version: `0.11.4`
+- rosdistro version: `0.4.4`
+- vcstools version: `0.1.38`
+
+
 ## pid (indigo) - 0.0.14-1
 
 The packages in the `pid` repository were released into the `indigo` distro by running `/usr/bin/bloom-release pid --track indigo --rosdistro indigo` on `Wed, 17 Feb 2016 20:34:22 -0000`
