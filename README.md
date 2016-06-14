@@ -1,3 +1,26 @@
+## pid (kinetic) - 0.0.15-0
+
+The packages in the `pid` repository were released into the `kinetic` distro by running `/usr/bin/bloom-release pid --track kinetic --rosdistro kinetic` on `Tue, 14 Jun 2016 16:05:30 -0000`
+
+The `pid` package was released.
+
+Version of package(s) in repository `pid`:
+
+- upstream repository: https://bitbucket.org/AndyZe/pid
+- release repository: unknown
+- rosdistro version: `null`
+- old version: `null`
+- new version: `0.0.15-0`
+
+Versions of tools used:
+
+- bloom version: `0.5.21`
+- catkin_pkg version: `0.2.10`
+- rosdep version: `0.11.5`
+- rosdistro version: `0.4.7`
+- vcstools version: `0.1.38`
+
+
 ## pid (jade) - 0.0.15-0
 
 The packages in the `pid` repository were released into the `jade` distro by running `/usr/bin/bloom-release pid --track jade --rosdistro jade` on `Mon, 22 Feb 2016 18:42:40 -0000`
