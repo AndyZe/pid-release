@@ -1,0 +1,12 @@
+Source: ros-jade-pid
+Section: misc
+Priority: extra
+Maintainer: Andy Zelenak <andyz@utexas.edu>
+Build-Depends: debhelper (>= 9.0.0), ros-jade-catkin, ros-jade-diagnostic-updater, ros-jade-dynamic-reconfigure, ros-jade-message-generation, ros-jade-roscpp, ros-jade-std-msgs
+Homepage: http://wiki.ros.org/pid
+Standards-Version: 3.9.2
+
+Package: ros-jade-pid
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-jade-diagnostic-updater, ros-jade-dynamic-reconfigure, ros-jade-message-runtime, ros-jade-roscpp, ros-jade-std-msgs
+Description: Launch a PID control node.
