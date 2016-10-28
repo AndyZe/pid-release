@@ -68,11 +68,13 @@ add_executable(controller src/controller.cpp)
 add_executable(plant_sim src/plant_sim.cpp)
 add_executable(setpoint_node src/setpoint_node.cpp)
 add_executable(sim_time src/sim_time.cpp)
+add_executable(autotune src/autotune.cpp)
 
 add_dependencies(controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(plant_sim ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(setpoint_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(sim_time ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(autotune ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -81,6 +83,7 @@ target_link_libraries(controller ${catkin_LIBRARIES})
 target_link_libraries(plant_sim ${catkin_LIBRARIES})
 target_link_libraries(setpoint_node ${catkin_LIBRARIES})
 target_link_libraries(sim_time ${catkin_LIBRARIES})
+target_link_libraries(autotune ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -97,7 +100,7 @@ target_link_libraries(sim_time ${catkin_LIBRARIES})
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS controller plant_sim setpoint_node sim_time
+install(TARGETS controller plant_sim setpoint_node sim_time autotune
 #  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
