@@ -89,7 +89,7 @@ tracks:
     name: pid
     patches: null
     release_inc: '1'
-    release_repo_url: null
+    release_repo_url: https://github.com/AndyZe/pid-release.git
     release_tag: :{version}
     ros_distro: lunar
     vcs_type: git
