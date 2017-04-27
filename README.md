@@ -1,3 +1,26 @@
+## pid (lunar) - 0.0.21-2
+
+The packages in the `pid` repository were released into the `lunar` distro by running `/usr/bin/bloom-release --rosdistro lunar --track lunar pid --edit` on `Thu, 27 Apr 2017 18:56:13 -0000`
+
+The `pid` package was released.
+
+Version of package(s) in repository `pid`:
+
+- upstream repository: https://bitbucket.org/AndyZe/pid
+- release repository: unknown
+- rosdistro version: `null`
+- old version: `0.0.21-1`
+- new version: `0.0.21-2`
+
+Versions of tools used:
+
+- bloom version: `0.5.25`
+- catkin_pkg version: `0.2.10`
+- rosdep version: `0.11.5`
+- rosdistro version: `0.5.0`
+- vcstools version: `0.1.39`
+
+
 ## pid (lunar) - 0.0.21-1
 
 The packages in the `pid` repository were released into the `lunar` distro by running `/usr/bin/bloom-release --rosdistro lunar --track lunar pid --edit` on `Thu, 27 Apr 2017 18:50:46 -0000`
