@@ -1,7 +1,7 @@
 /***************************************************************************//**
 * \file controller.cpp
 *
-* \brief Simple PID controller with dynamic reconfigure and diagnostics
+* \brief Simple PID controller with dynamic reconfigure
 * \author Andy Zelenak
 * \date March 8, 2015
 *
@@ -37,10 +37,8 @@
 // stabilize it.
 
 #include <pid/controller.h>
-#include <pid/PidConfig.h>
 
-#include <dynamic_reconfigure/server.h>
-#include <ros/time.h>
+using namespace pid;
 
 void setpoint_callback(const std_msgs::Float64& setpoint_msg)
 {
@@ -62,7 +60,7 @@ void plant_state_callback(const std_msgs::Float64& state_msg)
   error.at(0) = setpoint - plant_state; // Current error goes to slot 0
 
   // If the angle_error param is true, then address discontinuity in error calc.
-  // This maintains an angle between -180:180.
+  // For example, this maintains an angular error between -180:180.
   if (angle_error)
     {
       while (error.at(0) < -1.0*angle_wrap/2.0)
@@ -73,6 +71,12 @@ void plant_state_callback(const std_msgs::Float64& state_msg)
 	{
 	  error.at(0) -= angle_wrap;
 	}
+      // The proportional error will flip sign, but the integral error
+      // won't and the derivative error will be poorly defined. So,
+      // reset them.
+      error.at(2) = 0.;
+      error.at(1) = 0.;
+      error_integral = 0.;
     }
 
   // calculate delta_t
@@ -131,10 +135,7 @@ void plant_state_callback(const std_msgs::Float64& state_msg)
   filtered_error_deriv.at(2) = filtered_error_deriv.at(1);
   filtered_error_deriv.at(1) = filtered_error_deriv.at(0);
 
-  if ( loop_counter>2 ) // Let some data accumulate
-    filtered_error_deriv.at(0) = (1/(1+c*c+1.414*c))*(error_deriv.at(2)+2*error_deriv.at(1)+error_deriv.at(0)-(c*c-1.414*c+1)*filtered_error_deriv.at(2)-(-2*c*c+2)*filtered_error_deriv.at(1));
-  else
-    loop_counter++;
+  filtered_error_deriv.at(0) = (1/(1+c*c+1.414*c))*(error_deriv.at(2)+2*error_deriv.at(1)+error_deriv.at(0)-(c*c-1.414*c+1)*filtered_error_deriv.at(2)-(-2*c*c+2)*filtered_error_deriv.at(1));
 
   // calculate the control effort
   proportional = Kp * filtered_error.at(0);
@@ -146,19 +147,10 @@ void plant_state_callback(const std_msgs::Float64& state_msg)
   if (control_effort > upper_limit)
   {
     control_effort = upper_limit;
-    diag_status.level = diagnostic_msgs::DiagnosticStatus::WARN;
-    diag_status.message = "Control effort exceeded upper limit";
   }
   else if (control_effort < lower_limit)
   {
     control_effort = lower_limit;
-    diag_status.level = diagnostic_msgs::DiagnosticStatus::WARN;
-    diag_status.message = "Control effort exceeded lower limit";
-  }
-  else
-  {
-    diag_status.level = diagnostic_msgs::DiagnosticStatus::OK;
-    diag_status.message = "PID controller nominal";
   }
 
   // Publish the stabilizing control effort if the controller is enabled
@@ -170,14 +162,7 @@ void plant_state_callback(const std_msgs::Float64& state_msg)
   else
   {
     error_integral = 0.0;
-    diag_status.level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    diag_status.message = "PID controller disabled";
   }
-
-  // update diags
-  ++measurements_received;
-  diags->freq_status.tick();
-  diags->diag_updater.update();
 
   return;
 }
@@ -212,8 +197,6 @@ void get_params(double in, double &value, double &scale)
   scale = pow(10.0,digits);
 }
 
-bool first_reconfig = true;
-
 void reconfigure_callback(pid::PidConfig &config, uint32_t level)
 {
   if (first_reconfig)
@@ -229,19 +212,6 @@ void reconfigure_callback(pid::PidConfig &config, uint32_t level)
   Ki = config.Ki * config.Ki_scale;
   Kd = config.Kd * config.Kd_scale;
   ROS_INFO("Pid reconfigure request: Kp: %f, Ki: %f, Kd: %f", Kp, Ki, Kd);
-}
-
-void get_pid_diag_status(diagnostic_updater::DiagnosticStatusWrapper& pid_diag_status)
-{
-  pid_diag_status.summary(diag_status);
-  pid_diag_status.add("Setpoint", setpoint);
-  pid_diag_status.add("Plant State", plant_state);
-  pid_diag_status.add("Control Error", error.at(0));
-  pid_diag_status.add("Control output effort", control_effort);
-  pid_diag_status.add("Proportional effort", proportional);
-  pid_diag_status.add("Integral effort", integral);
-  pid_diag_status.add("Derivative effort", derivative);
-  pid_diag_status.add("Measurements received", measurements_received);
 }
 
   ////////////////////////////////////
@@ -339,15 +309,9 @@ int main(int argc, char **argv)
   f = boost::bind(&reconfigure_callback, _1, _2);
   config_server.setCallback(f);
 
-  // initialize diagnostics
-  diags = new PidControllerDiags;
-
-  diag_status.level = diagnostic_msgs::DiagnosticStatus::OK;
-  diag_status.message = "PID status nominal";
-
-  diags->diag_updater.setHardwareID(node_name);
-  diags->diag_updater.add(diags->freq_status);
-  diags->diag_updater.add("PID status", get_pid_diag_status);
+  // Wait for a setpoint
+  while( !ros::topic::waitForMessage<std_msgs::Float64>(setpoint_topic, ros::Duration(10.)) )
+    ROS_WARN_STREAM("Waiting for the setpoint to be published.");
 
   // Respond to inputs until shut down
   ros::spin();
