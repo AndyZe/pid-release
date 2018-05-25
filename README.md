@@ -1,3 +1,26 @@
+## pid (lunar) - 0.0.25-0
+
+The packages in the `pid` repository were released into the `lunar` distro by running `/usr/bin/bloom-release pid --track lunar --rosdistro lunar` on `Fri, 25 May 2018 14:11:01 -0000`
+
+The `pid` package was released.
+
+Version of package(s) in repository `pid`:
+
+- upstream repository: https://bitbucket.org/AndyZe/pid
+- release repository: https://github.com/AndyZe/pid-release.git
+- rosdistro version: `0.0.24-0`
+- old version: `0.0.24-0`
+- new version: `0.0.25-0`
+
+Versions of tools used:
+
+- bloom version: `0.6.4`
+- catkin_pkg version: `0.4.1`
+- rosdep version: `0.12.2`
+- rosdistro version: `0.6.8`
+- vcstools version: `0.1.40`
+
+
 ## pid (kinetic) - 0.0.25-0
 
 The packages in the `pid` repository were released into the `kinetic` distro by running `/usr/bin/bloom-release pid --track kinetic --rosdistro kinetic` on `Fri, 25 May 2018 14:07:39 -0000`
