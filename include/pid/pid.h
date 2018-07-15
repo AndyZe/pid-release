@@ -33,8 +33,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
 
-#ifndef CONTROLLER_H
-#define CONTROLLER_H
+#ifndef PID_H
+#define PID_H
 
 #include "math.h"
 #include "ros/ros.h"
@@ -44,6 +44,7 @@
 #include <ros/time.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/Float64MultiArray.h>
 #include <stdio.h>
 #include <string>
 
@@ -53,6 +54,9 @@ class PidObject
 {
 public:
   PidObject();
+
+  // Primary output variable
+  double control_effort_ = 0;        // output of pid controller
 
 private:
   void doCalcs();
@@ -64,12 +68,11 @@ private:
   void setpointCallback(const std_msgs::Float64& setpoint_msg);
   bool validateParameters();
 
-  // Primary PID controller input & output variables
+  // Primary PID controller input variables
   double plant_state_;               // current output of plant
-  double control_effort_ = 0;        // output of pid controller
-  double setpoint_ = 0;              // desired output of plant
   bool pid_enabled_ = true;          // PID is enabled to run
   bool new_state_or_setpt_ = false;  // Indicate that fresh calculations need to be run
+  double setpoint_ = 0;              // desired output of plant
 
   ros::Time prev_time_;
   ros::Duration delta_t_;
@@ -110,8 +113,10 @@ private:
 
   // Topic and node names and message objects
   ros::Publisher control_effort_pub_;
-  std::string topic_from_controller_, topic_from_plant_, setpoint_topic_, pid_enable_topic_;
+  ros::Publisher pid_debug_pub_;
 
+  std::string topic_from_controller_, topic_from_plant_, setpoint_topic_, pid_enable_topic_;
+  std::string pid_debug_pub_name_;
   std_msgs::Float64 control_msg_, state_msg_;
 
   // Diagnostic objects
