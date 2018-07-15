@@ -1,0 +1,12 @@
+Source: ros-melodic-pid
+Section: misc
+Priority: extra
+Maintainer: Andy Zelenak <andyz@utexas.edu>
+Build-Depends: debhelper (>= 9.0.0), ros-melodic-catkin, ros-melodic-dynamic-reconfigure, ros-melodic-message-generation, ros-melodic-roscpp, ros-melodic-std-msgs
+Homepage: http://wiki.ros.org/pid
+Standards-Version: 3.9.2
+
+Package: ros-melodic-pid
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-melodic-dynamic-reconfigure, ros-melodic-message-runtime, ros-melodic-roscpp, ros-melodic-std-msgs
+Description: Launch a PID control node.
