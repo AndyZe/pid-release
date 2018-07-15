@@ -1,3 +1,26 @@
+## pid (indigo) - 0.0.27-0
+
+The packages in the `pid` repository were released into the `indigo` distro by running `/usr/bin/bloom-release pid --track indigo --rosdistro indigo` on `Sun, 15 Jul 2018 01:57:59 -0000`
+
+The `pid` package was released.
+
+Version of package(s) in repository `pid`:
+
+- upstream repository: https://bitbucket.org/AndyZe/pid
+- release repository: https://github.com/AndyZe/pid-release.git
+- rosdistro version: `0.0.24-0`
+- old version: `0.0.24-0`
+- new version: `0.0.27-0`
+
+Versions of tools used:
+
+- bloom version: `0.6.6`
+- catkin_pkg version: `0.4.3`
+- rosdep version: `0.12.2`
+- rosdistro version: `0.6.8`
+- vcstools version: `0.1.40`
+
+
 ## pid (lunar) - 0.0.26-0
 
 The packages in the `pid` repository were released into the `lunar` distro by running `/usr/bin/bloom-release pid --track lunar --rosdistro lunar` on `Tue, 10 Jul 2018 15:42:31 -0000`
