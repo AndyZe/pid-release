@@ -1,0 +1,12 @@
+Source: ros-noetic-pid
+Section: misc
+Priority: optional
+Maintainer: Andy Zelenak <andyz@utexas.edu>
+Build-Depends: debhelper (>= 9.0.0), ros-noetic-catkin, ros-noetic-dynamic-reconfigure, ros-noetic-message-runtime, ros-noetic-roscpp, ros-noetic-std-msgs
+Homepage: http://wiki.ros.org/pid
+Standards-Version: 3.9.2
+
+Package: ros-noetic-pid
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-noetic-dynamic-reconfigure, ros-noetic-message-runtime, ros-noetic-roscpp, ros-noetic-std-msgs
+Description: Launch a PID control node.
