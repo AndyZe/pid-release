@@ -30,6 +30,9 @@ PidObject::PidObject() : error_(3, 0), filtered_error_(3, 0), error_deriv_(3, 0)
   node_priv.param<double>("max_loop_frequency", max_loop_frequency_, 1.0);
   node_priv.param<double>("min_loop_frequency", min_loop_frequency_, 1000.0);
   node_priv.param<std::string>("pid_debug_topic", pid_debug_pub_name_, "pid_debug");
+  node_priv.param<double>("setpoint_timeout", setpoint_timeout_, -1.0);
+  ROS_ASSERT_MSG(setpoint_timeout_ ==-1 || setpoint_timeout_ > 0, 
+                 "setpoint_timeout set to %.2f but needs to -1 or >0", setpoint_timeout_);
 
   // Two parameters to allow for error calculation with discontinous value
   node_priv.param<bool>("angle_error", angle_error_, false);
@@ -47,6 +50,13 @@ PidObject::PidObject() : error_(3, 0), filtered_error_(3, 0), error_deriv_(3, 0)
   ros::Subscriber plant_sub_ = node.subscribe(topic_from_plant_, 1, &PidObject::plantStateCallback, this);
   ros::Subscriber setpoint_sub_ = node.subscribe(setpoint_topic_, 1, &PidObject::setpointCallback, this);
   ros::Subscriber pid_enabled_sub_ = node.subscribe(pid_enable_topic_, 1, &PidObject::pidEnableCallback, this);
+
+  if (!plant_sub_ || !setpoint_sub_ || !pid_enabled_sub_)
+  {
+    ROS_ERROR_STREAM("Initialization of a subscriber failed. Exiting.");
+    ros::shutdown();
+    exit(EXIT_FAILURE);
+  }
 
   // dynamic reconfiguration
   dynamic_reconfigure::Server<pid::PidConfig> config_server;
@@ -75,7 +85,7 @@ PidObject::PidObject() : error_(3, 0), filtered_error_(3, 0), error_deriv_(3, 0)
 void PidObject::setpointCallback(const std_msgs::Float64& setpoint_msg)
 {
   setpoint_ = setpoint_msg.data;
-
+  last_setpoint_msg_time_ = ros::Time::now();
   new_state_or_setpt_ = true;
 }
 
@@ -95,7 +105,7 @@ void PidObject::getParams(double in, double& value, double& scale)
 {
   int digits = 0;
   value = in;
-  while ((fabs(value) > 1.0 || fabs(value) < 0.1) && (digits < 2 && digits > -1))
+  while (ros::ok() && ((fabs(value) > 1.0 || fabs(value) < 0.1) && (digits < 2 && digits > -1)))
   {
     if (fabs(value) > 1.0)
     {
@@ -184,16 +194,29 @@ void PidObject::doCalcs()
     if (angle_error_)
     {
       while (error_.at(0) < -1.0 * angle_wrap_ / 2.0)
+      {
         error_.at(0) += angle_wrap_;
+
+        // The proportional error will flip sign, but the integral error
+        // won't and the filtered derivative will be poorly defined. So,
+        // reset them.
+        error_deriv_.at(2) = 0.;
+        error_deriv_.at(1) = 0.;
+        error_deriv_.at(0) = 0.;
+        error_integral_ = 0.;
+      }
       while (error_.at(0) > angle_wrap_ / 2.0)
+      {
         error_.at(0) -= angle_wrap_;
 
-      // The proportional error will flip sign, but the integral error
-      // won't and the derivative error will be poorly defined. So,
-      // reset them.
-      error_.at(2) = 0.;
-      error_.at(1) = 0.;
-      error_integral_ = 0.;
+        // The proportional error will flip sign, but the integral error
+        // won't and the filtered derivative will be poorly defined. So,
+        // reset them.
+        error_deriv_.at(2) = 0.;
+        error_deriv_.at(1) = 0.;
+        error_deriv_.at(0) = 0.;
+        error_integral_ = 0.;
+      }
     }
 
     // calculate delta_t
@@ -228,6 +251,7 @@ void PidObject::doCalcs()
 
     // My filter reference was Julius O. Smith III, Intro. to Digital Filters
     // With Audio Applications.
+    // See https://ccrma.stanford.edu/~jos/filters/Example_Second_Order_Butterworth_Lowpass.html
     if (cutoff_frequency_ != -1)
     {
       // Check if tan(_) is really small, could cause c = NaN
@@ -275,7 +299,8 @@ void PidObject::doCalcs()
       control_effort_ = lower_limit_;
 
     // Publish the stabilizing control effort if the controller is enabled
-    if (pid_enabled_)
+    if (pid_enabled_ && (setpoint_timeout_ == -1 || 
+                         (ros::Time::now() - last_setpoint_msg_time_).toSec() <= setpoint_timeout_))
     {
       control_msg_.data = control_effort_;
       control_effort_pub_.publish(control_msg_);
@@ -285,6 +310,11 @@ void PidObject::doCalcs()
       pidDebugMsg.data = pid_debug_vect;
       pid_debug_pub_.publish(pidDebugMsg);
     }
+    else if (setpoint_timeout_ > 0 && (ros::Time::now() - last_setpoint_msg_time_).toSec() > setpoint_timeout_)
+    {
+      ROS_WARN_ONCE("Setpoint message timed out, will stop publising control_effort_messages");
+      error_integral_ = 0.0;
+    } 
     else
       error_integral_ = 0.0;
   }
