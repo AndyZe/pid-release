@@ -1,3 +1,26 @@
+## pid (noetic) - 0.0.28-1
+
+The packages in the `pid` repository were released into the `noetic` distro by running `/usr/bin/bloom-release --rosdistro noetic --track noetic pid --edit` on `Sat, 04 Jul 2020 00:16:53 -0000`
+
+The `pid` package was released.
+
+Version of package(s) in repository `pid`:
+
+- upstream repository: https://bitbucket.org/AndyZe/pid
+- release repository: unknown
+- rosdistro version: `null`
+- old version: `null`
+- new version: `0.0.28-1`
+
+Versions of tools used:
+
+- bloom version: `0.9.7`
+- catkin_pkg version: `0.4.22`
+- rosdep version: `0.19.0`
+- rosdistro version: `0.8.2`
+- vcstools version: `0.1.42`
+
+
 ## pid (melodic) - 0.0.27-0
 
 The packages in the `pid` repository were released into the `melodic` distro by running `/usr/bin/bloom-release pid --track melodic --rosdistro melodic` on `Sun, 15 Jul 2018 02:11:13 -0000`
